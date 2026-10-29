@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+{% block title %}MtaaFix · Community reports{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div>
+    <p class="eyebrow">YOUR COMMUNITY. YOUR VOICE.</p>
+    <h1>See a problem?<br><span>Help get it noticed.</span></h1>
+    <p class="hero-copy">Report local issues, follow their progress, and help your community understand what needs attention.</p>
+    <a class="button" href="{{ url_for('report') }}">Report a problem <span aria-hidden="true">→</span></a>
+  </div>
+
+  <div class="hero-art" aria-hidden="true">
+    <div class="pin pin-one">!</div>
+    <div class="pin pin-two">✓</div>
+    <div class="road"></div>
+    <div class="art-label">Small reports.<br><strong>Visible progress.</strong></div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <span class="stat-number">{{ total }}</span>
+    <span class="stat-label">Total reports</span>
+  </div>
+  <div class="stat">
+    <span class="stat-number">{{ active }}</span>
+    <span class="stat-label">Need attention</span>
+  </div>
+  <div class="stat">
+    <span class="stat-number">{{ resolved }}</span>
+    <span class="stat-label">Marked resolved</span>
+  </div>
+</section>
+
+<section class="section-heading">
+  <div>
+    <p class="eyebrow">COMMUNITY BOARD</p>
+    <h2>Reported problems</h2>
+  </div>
+
+  <form method="get" class="filter">
+    <label for="category">Filter:</label>
+    <select id="category" name="category" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for item in categories %}
+      <option value="{{ item }}" {% if selected_category == item %}selected{% endif %}>{{ item }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</section>
+
+{% if reports %}
+<div class="report-grid">
+  {% for item in reports %}
+  <article class="report-card">
+    <div class="card-top">
+      <span class="category">{{ item.category }}</span>
+      <span class="status status-{{ item.status|lower|replace(' ', '-') }}">{{ item.status }}</span>
+    </div>
+
+    <h3>{{ item.title }}</h3>
+    <p class="location">⌖ {{ item.location }}</p>
+    <p class="description">{{ item.description }}</p>
+
+    <div class="card-bottom">
+      <small>Report #{{ item.id }} · {{ item.created_at }}</small>
+
+      {% if logged_in_coordinator %}
+      <form method="post"
+            action="{{ url_for('update_status', report_id=item.id) }}"
+            class="status-form">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label class="sr-only" for="status-{{ item.id }}">
+          Update status for report {{ item.id }}
+        </label>
+
+        <select id="status-{{ item.id }}" name="status">
+          {% for status in ["Reported", "In Progress", "Resolved"] %}
+          <option value="{{ status }}" {% if item.status == status %}selected{% endif %}>
+            {{ status }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <button class="text-button" type="submit">Update</button>
+      </form>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">＋</div>
+  <h3>No reports yet</h3>
+  <p>Be the first to report a problem in your community.</p>
+  <a class="button" href="{{ url_for('report') }}">Create first report</a>
+</div>
+{% endif %}
+
+<p class="demo-note">
+  <strong>Community note:</strong>
+  Community members can submit reports. Only authorized coordinators can update report statuses.
+</p>
+
+{% endblock %}

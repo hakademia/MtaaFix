@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MtaaFix{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <nav class="nav">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">M</span> MtaaFix</a>
+
+    <div class="nav-links">
+      <a href="{{ url_for('index') }}">Community reports</a>
+
+      <a class="button button-small" href="{{ url_for('report') }}">
+        + Report a problem
+      </a>
+
+      {% if logged_in_coordinator %}
+      <span>Coordinator: {{ logged_in_coordinator.username }}</span>
+
+      <form method="post" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="text-button" type="submit">Log out</button>
+      </form>
+      {% else %}
+      <a href="{{ url_for('login') }}">Coordinator login</a>
+      {% endif %}
+    </div>
+
+  </nav>
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>Built for stronger communities · MtaaFix hackathon prototype</footer>
+</body>
+
+</html>

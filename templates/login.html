@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Coordinator Login · MtaaFix{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+    <a class="back-link" href="{{ url_for('index') }}">
+        ← Back to community reports
+    </a>
+
+    <p class="eyebrow">COORDINATOR ACCESS</p>
+    <h1>Welcome back</h1>
+    <p class="hero-copy">
+        Sign in to manage community report statuses.
+    </p>
+
+    <form method="post" class="report-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label for="username">Username</label>
+        <input id="username" name="username" maxlength="80" autocomplete="username" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+        <button class="button submit-button" type="submit">
+            Sign in →
+        </button>
+    </form>
+</div>
+{% endblock %}
