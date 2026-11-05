@@ -4,11 +4,11 @@ Hakademia recognizes the people who originate, maintain, and contribute to each 
 
 ## Original creator
 
-- **[@your-github-username](https://github.com/your-github-username)** — Original project concept and initial implementation. [Edit this description to reflect the actual contribution.]
+- **[@Gaelnuru](https://github.com/Gaelnuru)** — Original project concept and initial implementation. 
 
 ## Maintainers
 
-- **[@maintainer-username](https://github.com/maintainer-username)** — [Responsibility]
+- **[@Gaelnuru](https://github.com/Gaelnuru)** —
 
 ## Contributors
 

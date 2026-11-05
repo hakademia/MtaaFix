@@ -1,4 +1,4 @@
-# [Project Name]
+# MtaaFix
 
 > [A short, clear description of what your project does.]
 
@@ -6,37 +6,56 @@ A community project developed within **Hakademia**.
 
 ## Overview
 
-Explain the problem, your solution, and who this project is for.
+MtaaFix is a beginner-friendly Flask + SQLite prototype for reporting and tracking community problems.
 
 ## Features
 
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
+- Submit a community report
+- Categorize issues (road damage, garbage, water, streetlights, other)
+- View all reports and filter by category
+- Track status: Reported, In Progress, Resolved
+- Simple dashboard counters
+- SQLite database is created automatically
 
 ## Getting started
 
 ### Requirements
 
-- [Runtime, tools, or prerequisites]
+- python3 
+- sqlite3
+- Flask
 
-### Installation
+### Installation (Run on Ubuntu / Linux)
 
-```bash
-# Add installation commands here
-```
+1. Open a terminal in this folder.
+2. Create a virtual environment:
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ### Usage
 
-```bash
-# Add an example command here
-```
+4. Start the app:
+
+   ```bash
+   python app.py
+   ```
+
+5. Open `http://127.0.0.1:5000` in your browser.
+
+If `python3 -m venv .venv` fails on Ubuntu, install the venv package with:
+`sudo apt install python3-venv`
+
 
 ## Project credits
-
-**Original creator:** [@your-github-username](https://github.com/your-github-username)  
-**Maintained by:** [Project maintainers](AUTHORS.md)  
-**Community:** [Hakademia](https://github.com/hakademia)
 
 This repository is hosted within Hakademia. Hosting alone does not determine copyright ownership or authorship. See [AUTHORS.md](AUTHORS.md) for individual credits.
 
@@ -50,4 +69,3 @@ This project is licensed under the [MIT License](LICENSE), provided that the pro
 
 ---
 
-**Template setup:** Replace every `[placeholder]`, review the license and its copyright holder, add working installation instructions, and remove this note before publishing your project.

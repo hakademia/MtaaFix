@@ -1,4 +1,4 @@
-# Contributing to [Project Name]
+# Contributing to MtaaFix
 
 Thank you for contributing to a Hakademia community project!
 
