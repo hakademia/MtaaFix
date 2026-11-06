@@ -1,6 +1,10 @@
-
 import os
 import sqlite3
+import uuid
+import warnings
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
+from werkzeug.exceptions import RequestEntityTooLarge
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -24,6 +28,7 @@ if not secret_key:
     )
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 6 * 1024 * 1024
 app.config.update(
     SECRET_KEY=secret_key,
     SESSION_COOKIE_HTTPONLY=True,
@@ -74,10 +79,85 @@ def init_db():
                 created_at TEXT NOT NULL
             )
         """)
+
+        # Add the photo column to existing databases if needed.
+        columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(reports)")
+        }
+
+        if "photo_filename" not in columns:
+            conn.execute(
+                "ALTER TABLE reports ADD COLUMN photo_filename TEXT"
+            )
+
         conn.commit()
 
 
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_PHOTO_SIZE = 5 * 1024 * 1024
+UPLOAD_FOLDER = BASE_DIR / "static" / "uploads"
+
+
+def process_uploaded_photo(upload):
+    if not upload or not upload.filename:
+        return None
+
+    extension = Path(upload.filename).suffix.lower()
+
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        raise ValueError("Only JPG, PNG and WEBP images are allowed.")
+
+    image_data = upload.read(MAX_PHOTO_SIZE + 1)
+
+    if len(image_data) > MAX_PHOTO_SIZE:
+        raise ValueError("Your photo must not exceed 5 MB.")
+
+    if not image_data:
+        raise ValueError("The uploaded photo is empty.")
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter(
+                "error", Image.DecompressionBombWarning
+            )
+
+            with Image.open(BytesIO(image_data)) as image:
+                if image.format not in {"JPEG", "PNG", "WEBP"}:
+                    raise ValueError("Invalid image format.")
+
+                if image.width * image.height > 20_000_000:
+                    raise ValueError("Image dimensions are too large.")
+
+                image.verify()
+
+            with Image.open(BytesIO(image_data)) as image:
+                image.load()
+                image = image.convert("RGB")
+
+                filename = f"{uuid.uuid4().hex}.jpg"
+                UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+
+                image.save(
+                    UPLOAD_FOLDER / filename,
+                    format="JPEG",
+                    quality=85,
+                    optimize=True,
+                )
+
+                return filename
+
+    except (
+        UnidentifiedImageError,
+        OSError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ):
+        raise ValueError("Please upload a valid image.") from None
+
+
 def current_coordinator():
+
     coordinator_id = session.get("coordinator_id")
 
     if not coordinator_id:
@@ -198,6 +278,7 @@ def index():
     )
 
 
+
 @app.route("/report", methods=["GET", "POST"])
 def report():
     if request.method == "POST":
@@ -206,6 +287,7 @@ def report():
         location = request.form.get("location", "").strip()
         description = request.form.get("description", "").strip()
 
+        # Validate the report information.
         valid = (
             bool(title)
             and len(title) <= 100
@@ -225,22 +307,46 @@ def report():
                 "report.html", categories=CATEGORIES
             ), 400
 
-        with get_db() as conn:
-            conn.execute(
-                """
-                INSERT INTO reports
-                    (title, category, location, description, status, created_at)
-                VALUES (?, ?, ?, ?, 'Reported', ?)
-                """,
-                (
-                    title,
-                    category,
-                    location,
-                    description,
-                    datetime.now().strftime("%Y-%m-%d %H:%M"),
-                ),
-            )
-            conn.commit()
+        # Process the optional photo.
+        photo = request.files.get("photo")
+
+        try:
+            photo_filename = process_uploaded_photo(photo)
+        except ValueError as error:
+            flash(str(error), "error")
+            return render_template(
+                "report.html", categories=CATEGORIES
+            ), 400
+
+        # Save the report in the database.
+        try:
+            with get_db() as conn:
+                conn.execute(
+                    """
+                    INSERT INTO reports
+                        (
+                            title, category, location, description,
+                            status, created_at, photo_filename
+                        )
+                    VALUES (?, ?, ?, ?, 'Reported', ?, ?)
+                    """,
+                    (
+                        title,
+                        category,
+                        location,
+                        description,
+                        datetime.now().strftime("%Y-%m-%d %H:%M"),
+                        photo_filename,
+                    ),
+                )
+                conn.commit()
+
+        except sqlite3.Error:
+            # Remove the image if database saving fails.
+            if photo_filename:
+                image_path = UPLOAD_FOLDER / photo_filename
+                image_path.unlink(missing_ok=True)
+            raise
 
         flash(
             "Your report was submitted. Thank you for helping your community!",
