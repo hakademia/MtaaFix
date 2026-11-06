@@ -44,6 +44,7 @@ select, input, textarea { font: inherit; color: var(--ink); border: 1px solid #c
 h3 { margin: 16px 0 8px; font-size: 1.12rem; }
 .location { color: var(--muted); font-size: .84rem; margin: 0 0 10px; }
 .description { color: #40544a; font-size: .92rem; line-height: 1.65; min-height: 48px; }
+.report-photo {display: block; width: 100%; max-height: 320px; object-fit: cover; border-radius: 12px; margin-top: 16px; }
 .card-bottom { border-top: 1px solid #edf1ed; padding-top: 13px; margin-top: 16px; }
 .card-bottom small { color: var(--muted); }
 .status-form { display: flex; align-items: center; gap: 7px; }

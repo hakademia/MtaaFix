@@ -6,7 +6,7 @@
   <p class="eyebrow">MAKE YOUR VOICE COUNT</p>
   <h1>Report a community problem</h1>
   <p class="hero-copy">Share clear information so the community can understand the issue.</p>
-  <form method="post" class="report-form">
+  <form method="post" class="report-form" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="title">Short title</label>
     <input id="title" name="title" maxlength="100" placeholder="e.g. Large pothole near the market" required>
@@ -23,6 +23,12 @@
     <label for="description">Describe the problem</label>
     <textarea id="description" name="description" rows="5" maxlength="1200"
       placeholder="What happened? Who might be affected?" required></textarea>
+
+    <label for="photo">Photo evidence (optional)</label>
+    <input id="photo" name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+    <p class="field-hint">
+      Upload one JPG, PNG or WEBP image (maximum 5 MB).
+    </p>
 
     <div class="privacy-note">Please do not include private information about yourself or other people.</div>
     <button class="button submit-button" type="submit">Submit report →</button>

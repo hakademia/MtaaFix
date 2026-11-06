@@ -2,3 +2,10 @@
 __pycache__/
 *.py[cod]
 .venv/
+
+# Local database and uploaded files
+mtaafix.db
+static/uploads/
+
+# Editor backup files
+*.save

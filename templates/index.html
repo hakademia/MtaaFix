@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% block title %}MtaaFix · Community reports{% endblock %}
 {% block content %}
@@ -7,7 +6,8 @@
   <div>
     <p class="eyebrow">YOUR COMMUNITY. YOUR VOICE.</p>
     <h1>See a problem?<br><span>Help get it noticed.</span></h1>
-    <p class="hero-copy">Report local issues, follow their progress, and help your community understand what needs attention.</p>
+    <p class="hero-copy">Report local issues, follow their progress, and help your community understand what needs
+      attention.</p>
     <a class="button" href="{{ url_for('report') }}">Report a problem <span aria-hidden="true">→</span></a>
   </div>
 
@@ -45,7 +45,7 @@
     <select id="category" name="category" onchange="this.form.submit()">
       <option value="">All categories</option>
       {% for item in categories %}
-      <option value="{{ item }}" {% if selected_category == item %}selected{% endif %}>{{ item }}</option>
+      <option value="{{ item }}" {% if selected_category==item %}selected{% endif %}>{{ item }}</option>
       {% endfor %}
     </select>
   </form>
@@ -64,13 +64,16 @@
     <p class="location">⌖ {{ item.location }}</p>
     <p class="description">{{ item.description }}</p>
 
+    {% if item.photo_filename %}
+    <img src="{{ url_for('static', filename='uploads/' ~ item.photo_filename) }}"
+      alt="Photo evidence for {{ item.title }}" class="report-photo" loading="lazy">
+    {% endif %}
+
     <div class="card-bottom">
       <small>Report #{{ item.id }} · {{ item.created_at }}</small>
 
       {% if logged_in_coordinator %}
-      <form method="post"
-            action="{{ url_for('update_status', report_id=item.id) }}"
-            class="status-form">
+      <form method="post" action="{{ url_for('update_status', report_id=item.id) }}" class="status-form">
 
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -80,7 +83,7 @@
 
         <select id="status-{{ item.id }}" name="status">
           {% for status in ["Reported", "In Progress", "Resolved"] %}
-          <option value="{{ status }}" {% if item.status == status %}selected{% endif %}>
+          <option value="{{ status }}" {% if item.status==status %}selected{% endif %}>
             {{ status }}
           </option>
           {% endfor %}
